@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -114,6 +115,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+
+JAZZMIN_SETTINGS = {
+    'site_header': "Zero Exchange",
+    'site_brand': "We Are Best",
+    # 'site_logo': "main/imgs/theme/loading.gif",
+    'copyright': "ZeroEx.com"
+}
 
 STATIC_URL = 'static/'
 
