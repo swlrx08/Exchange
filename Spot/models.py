@@ -1,23 +1,21 @@
 from django.db import models
 from django.contrib.auth.models import User
-
-
-class Currency(models.Model):
-    name = models.CharField(max_length=50)
-    symbol = models.CharField(max_length=10)
-    price = models.DecimalField(max_digits=20, decimal_places=8)
-
-    def __str__(self):
-        return self.name
+from shortuuid.django_fields import ShortUUIDField
+from currency import CurrencyApi
+from django.core.exceptions import ValidationError
 
 
 class Wallet(models.Model):
+    wid = ShortUUIDField(unique=True, length=10, max_length=20, prefix="wal", alphabet="abcdefgh12345")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
+    currency_symbol = models.CharField(max_length=10)
     amount = models.DecimalField(max_digits=20, decimal_places=8, default=0)
 
+    def get_currency_info(self):
+        return CurrencyApi.get_currency(self.currency_symbol)
+
     def __str__(self):
-        return f"{self.user.username} - {self.currency.symbol}: {self.amount}"
+        return f"{self.user.username} - {self.currency_symbol}: {self.amount}"
 
     def deposit(self, amount):
         if amount <= 0:
@@ -62,23 +60,50 @@ class WalletTransactionHistory(models.Model):
         ('transfer', 'Transfer'),
     )
 
-    wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)
+    origin_wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)
     transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPE_CHOICES)
     amount = models.DecimalField(max_digits=20, decimal_places=8)
-    futures = models.ForeignKey(Wallet, null=True, blank=True, related_name='received_transactions',
-                                on_delete=models.SET_NULL)
+    destination_wallet = models.ForeignKey(Wallet, null=True, blank=True, related_name='received_transactions',
+                                           on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def clean(self):
+        if self.amount <= 0:
+            raise ValidationError("The transaction amount must be positive.")
+
+        if self.transaction_type in ['withdraw', 'transfer']:
+            if self.origin_wallet.amount < self.amount:
+                raise ValidationError("Insufficient funds in the wallet.")
+
+        if self.transaction_type == 'transfer' and not self.destination_wallet:
+            raise ValidationError("Recipient wallet must be specified for transfer.")
+
+    def save(self, *args, **kwargs):
+        self.clean()  # Validate before saving
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.wallet.user.username} {self.transaction_type} {self.amount} on {self.created_at}"
+        return f"{self.origin_wallet.user.username} {self.transaction_type} {self.amount} on {self.created_at}"
 
 
 class TradingPair(models.Model):
-    base_currency = models.ForeignKey(Currency, related_name='base_currency', on_delete=models.CASCADE)
-    quote_currency = models.ForeignKey(Currency, related_name='quote_currency', on_delete=models.CASCADE)
+    base_currency = models.CharField(max_length=10)
+    quote_currency = models.CharField(max_length=10)
+
+    def get_currency_price(self):
+        symbol = f"{self.base_currency}{self.quote_currency}"
+        currency_info = CurrencyApi.get_currency(symbol)
+        if currency_info:
+            return currency_info["price"]
+        else:
+            return None
 
     def __str__(self):
-        return f"{self.base_currency.symbol}/{self.quote_currency.symbol}"
+        currency_price = self.get_currency_price()
+        if currency_price:
+            return f"{self.base_currency}/{self.quote_currency} - Current Price: {currency_price}"
+        else:
+            return f"{self.base_currency}/{self.quote_currency} - Price not available"
 
 
 class Order(models.Model):
@@ -97,6 +122,7 @@ class Order(models.Model):
     order_type = models.CharField(max_length=4, choices=ORDER_TYPE_CHOICES)
     order_kind = models.CharField(max_length=7, choices=ORDER_KIND_CHOICES, default='market')
     price = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=True)  # قیمت سفارش
+    quantity = models.PositiveIntegerField()
     amount = models.DecimalField(max_digits=20, decimal_places=8)  # مقدار سفارش
     created_at = models.DateTimeField(auto_now_add=True)
 
