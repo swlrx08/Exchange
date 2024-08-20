@@ -1,11 +1,5 @@
 from rest_framework import serializers
-from .models import Currency, TradingPair, Order, Wallet, WalletTransactionHistory, SpotTransactionHistory
-
-
-class CurrencySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Currency
-        fields = '__all__'
+from .models import TradingPair, Order, Wallet, WalletTransactionHistory, SpotTransactionHistory
 
 
 class WalletSerializer(serializers.ModelSerializer):
