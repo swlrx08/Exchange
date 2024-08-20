@@ -1,6 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
-
+from Accounts.models import User
 
 class Currency(models.Model):
     name = models.CharField(max_length=50)
