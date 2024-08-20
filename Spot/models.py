@@ -60,6 +60,7 @@ class WalletTransactionHistory(models.Model):
         ('transfer', 'Transfer'),
     )
 
+    wtid = ShortUUIDField(unique=True, length=10, max_length=20, prefix="wlt", alphabet="abcdefgh12345")
     origin_wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)
     transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPE_CHOICES)
     amount = models.DecimalField(max_digits=20, decimal_places=8)
@@ -117,6 +118,7 @@ class Order(models.Model):
         ('limit', 'Limit Order'),
     )
 
+    oid = ShortUUIDField(unique=True, length=10, max_length=20, prefix="ord", alphabet="abcdefgh12345")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     pair = models.ForeignKey(TradingPair, on_delete=models.CASCADE)
     order_type = models.CharField(max_length=4, choices=ORDER_TYPE_CHOICES)
@@ -136,6 +138,7 @@ class SpotTransactionHistory(models.Model):
         ('sell', 'Sell'),
     )
 
+    tid = ShortUUIDField(unique=True, length=10, max_length=20, prefix="tr", alphabet="abcdefgh12345")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     pair = models.ForeignKey(TradingPair, on_delete=models.CASCADE)
     transaction_type = models.CharField(max_length=4, choices=TRANSACTION_TYPE_CHOICES)
