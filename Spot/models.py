@@ -1,8 +1,17 @@
 from django.db import models
-from django.contrib.auth.models import User
+from  Accounts.models import User
+from django.forms import ValidationError
+from . currency import CurrencyApi
 from shortuuid.django_fields import ShortUUIDField
-from currency import CurrencyApi
-from django.core.exceptions import ValidationError
+
+
+class Currency(models.Model):
+    name = models.CharField(max_length=50)
+    symbol = models.CharField(max_length=10)
+    price = models.DecimalField(max_digits=20, decimal_places=8)
+
+    def __str__(self):
+        return self.name
 
 
 class Wallet(models.Model):
