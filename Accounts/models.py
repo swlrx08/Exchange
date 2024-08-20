@@ -50,6 +50,16 @@ class CustomUserManager(UserManager):
         return self._create_user(email, password, **extra_fields)
 
 class User(AbstractBaseUser, PermissionsMixin):
+
+    VERIFICATION_CHOICES = [
+        ('email', 'Email'),
+        ('phone', 'Phone'),
+        ('google_auth', 'Google Authenticator'),
+    ]
+
+    verification_method = models.CharField(max_length=20, choices=VERIFICATION_CHOICES)
+
+        
     id = ShortUUIDField(unique=True,max_length=8,length=8, alphabet = characters,primary_key=True)
 
     email = models.EmailField(blank=True, default='', unique=True)

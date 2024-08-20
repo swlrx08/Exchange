@@ -35,3 +35,37 @@ class SMSVerificationSerializer(serializers.Serializer):
 
 class GoogleAuthenticatorSerializer(serializers.Serializer):
     code = serializers.CharField()
+
+
+
+from rest_framework import serializers
+from django.contrib.auth import authenticate
+from .models import User
+from rest_framework.authtoken.models import Token
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        username = data.get('username')
+        password = data.get('password')
+
+        # اعتبارسنجی کاربر
+        user = authenticate(username=username, password=password)
+        if user is None:
+            raise serializers.ValidationError("نام کاربری یا رمز عبور نادرست است.")
+
+        if not user.is_active:
+            raise serializers.ValidationError("این حساب غیرفعال است.")
+
+        # چک کردن وریفیکیشن بر اساس روش انتخابی کاربر
+        if user.verification_method == 'email' and not user.email_verified:
+            raise serializers.ValidationError("ایمیل شما هنوز تأیید نشده است.")
+        if user.verification_method == 'phone' and not user.phone_verified:
+            raise serializers.ValidationError("شماره تلفن شما هنوز تأیید نشده است.")
+        if user.verification_method == 'google_auth' and not user.google_authenticator_enabled:
+            raise serializers.ValidationError("Google Authenticator شما هنوز فعال نشده است.")
+
+        data['user'] = user
+        return data

@@ -6,7 +6,7 @@ from django.contrib.auth.tokens import default_token_generator
 from rest_framework.views import APIView
 from Accounts.models import User
 from .serializers import (
-    RegisterSerializer, EmailVerificationSerializer, SMSVerificationSerializer, GoogleAuthenticatorSerializer, UserSerializer
+    RegisterSerializer, EmailVerificationSerializer, SMSVerificationSerializer, GoogleAuthenticatorSerializer, UserSerializer,LoginSerializer
 )
 
 
@@ -84,3 +84,30 @@ class GoogleAuthenticatorView(generics.UpdateAPIView):
             return Response({"message": "Google Authenticator verification successful!"}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Invalid Google Authenticator code"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+from .serializers import LoginSerializer
+
+class LoginView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data['user']
+
+        # حذف توکن قدیمی و ایجاد توکن جدید
+        Token.objects.filter(user=user).delete()
+        token, created = Token.objects.get_or_create(user=user)
+
+        return Response({
+            'token': token.key,
+            'user': {
+                'username': user.username,
+                'email': user.email,
+                'verification_method': user.verification_method
+            }
+        }, status=status.HTTP_200_OK)

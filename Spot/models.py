@@ -1,5 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import User
+from  Accounts.models import User
+from django.forms import ValidationError
+from . currency import CurrencyApi
+from shortuuid.django_fields import ShortUUIDField
 
 
 class Currency(models.Model):

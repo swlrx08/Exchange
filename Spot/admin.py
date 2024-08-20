@@ -7,13 +7,12 @@ class WalletAdmin(admin.ModelAdmin):
     list_display = ('user', 'currency_symbol', 'amount')
     search_fields = ('user', 'currency_symbol'),
     list_filter = ('user',)
-    date_hierarchy = 'user'
     ordering = ('user',)
 
 
 @admin.register(WalletTransactionHistory)
 class WalletTransactionHistoryAdmin(admin.ModelAdmin):
-    list_display = ('wallet', 'transaction_type', 'amount', 'futures',)
+    list_display = ('transaction_type', 'amount')
 
 
 @admin.register(TradingPair)
@@ -26,7 +25,6 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ('user', 'order_type', 'order_kind', 'price', 'amount')
     search_fields = ('user', 'order_type', 'order_kind'),
     list_filter = ('user', 'order_type', 'order_kind')
-    date_hierarchy = 'user'
     ordering = ('user',)
 
 
