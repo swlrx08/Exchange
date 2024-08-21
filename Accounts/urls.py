@@ -1,12 +1,30 @@
+
 from django.urls import path
-from .views import RegisterView, EmailVerificationView, SMSVerificationView, GoogleAuthenticatorView,LoginView
+from .views import (
+    SendEmailVerificationCodeView,
+    SendPhoneVerificationCodeView,
+    VerifyEmailCodeView,
+    VerifyPhoneCodeView,
+    CompleteRegistrationView,
+    LoginWithEmailView,
+    LoginWithPhoneView
+)
 
 urlpatterns = [
-    path('register/', RegisterView.as_view(), name='register'),
-    path('verify-email/', EmailVerificationView.as_view(), name='verify-email'),
-    path('verify-sms/', SMSVerificationView.as_view(), name='verify-sms'),
-    path('verify-google-authenticator/', GoogleAuthenticatorView.as_view(), name='verify-google-authenticator'),
+    # ثبت‌نام و تایید ایمیل
+    path('register/email/', SendEmailVerificationCodeView.as_view(), name='send_email_verification_code'),
+    path('verify/email/', VerifyEmailCodeView.as_view(), name='verify_email_code'),
 
-    path('login/', LoginView.as_view(), name='login'),
-    # path('login/google-auth/', GoogleAuthenticatorVerificationView.as_view(), name='google-auth-verify'),
+    # ثبت‌نام و تایید شماره موبایل
+    path('register/phone/', SendPhoneVerificationCodeView.as_view(), name='send_phone_verification_code'),
+    path('verify/phone/', VerifyPhoneCodeView.as_view(), name='verify_phone_code'),
+
+    # تکمیل ثبت‌نام
+    path('complete-registration/', CompleteRegistrationView.as_view(), name='complete_registration'),
+
+    # لاگین با ایمیل
+    path('login/email/', LoginWithEmailView.as_view(), name='login_with_email'),
+
+    # لاگین با شماره موبایل
+    path('login/phone/', LoginWithPhoneView.as_view(), name='login_with_phone'),
 ]
