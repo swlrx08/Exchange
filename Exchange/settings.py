@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+from datetime import timedelta
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -36,15 +38,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'Accounts',
+
     'Spot',
     'rest_framework',
     'django_filters',
-    'rest_framework_swagger',
-    'drf_yasg',
-    'drf_spectacular',
+    'Futures',
+    'Accounts',
 
 ]
+
+AUTH_USER_MODEL = 'Accounts.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -132,3 +135,37 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # یا سرویس‌دهنده ایمیل شما
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your_email@example.com'  # ایمیل شما
+EMAIL_HOST_PASSWORD = 'your_email_password'  # رمز عبور ایمیل شما
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# TWILIO setting
+TWILIO_ACCOUNT_SID = 'your_twilio_account_sid'
+TWILIO_AUTH_TOKEN = 'your_twilio_auth_token'
+TWILIO_PHONE_NUMBER = '+1234567890'  # شماره تلفن اختصاصی Twilio شما
+
+
+#--------------------------------------------------------------------------------------
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+# -------------------------------------------------------------------------------------
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework_simplejwt.authentication.JWTAuthentication',
+#     ),
+# }
+
+# SIMPLE_JWT = {
+#     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+#     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+#     'ROTATE_REFRESH_TOKENS': False,
+#     'BLACKLIST_AFTER_ROTATION': True,
+# }
