@@ -1,4 +1,3 @@
-# models.py
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 from django.db import models
 from django.utils import timezone
@@ -14,26 +13,28 @@ import string
 
 characters = string.ascii_letters + string.digits
 
+
 class CustomUserManager(UserManager):
     def _create_user(self, email, password, **extra_fields):
         if not email:
             raise ValueError("You have not provided a valid e-mail address")
-        
+
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
-    
+
     def create_user(self, email=None, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
         return self._create_user(email, password, **extra_fields)
-    
+
     def create_superuser(self, email=None, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         return self._create_user(email, password, **extra_fields)
+
 
 class User(AbstractBaseUser, PermissionsMixin):
     id = ShortUUIDField(unique=True, max_length=8, length=8, primary_key=True)
@@ -41,7 +42,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField(max_length=15, null=True, unique=True)
     email_verified = models.BooleanField(default=False)
     phone_verified = models.BooleanField(default=False)
-    email_verification_code = models.CharField(max_length=6, blank=True, null=True,default='123')
+    email_verification_code = models.CharField(max_length=6, blank=True, null=True, default='123')
     phone_verification_code = models.CharField(max_length=6, blank=True, null=True)
     profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)
     is_active = models.BooleanField(default=True)
@@ -60,7 +61,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def generate_verification_code(self):
         return str(random.randint(100000, 999999))
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, kwargs):
         # اگر رکوردی وجود دارد و عکس پروفایل تغییر کرده، عکس قبلی حذف شود
         if self.pk:
             try:
@@ -70,4 +71,4 @@ class User(AbstractBaseUser, PermissionsMixin):
             except User.DoesNotExist:
                 pass
 
-        super().save(*args, **kwargs)
+        super().save(*args, kwargs)

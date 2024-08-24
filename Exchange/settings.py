@@ -38,13 +38,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'corsheaders',
     'Spot',
     'rest_framework',
     'django_filters',
     'Futures',
     'Accounts',
 
+    'rest_framework_swagger',
+    'drf_yasg',
+    'drf_spectacular',
 ]
 
 AUTH_USER_MODEL = 'Accounts.User'
@@ -57,8 +60,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
+AUTH_USER_MODEL = 'Accounts.User'
 ROOT_URLCONF = 'Exchange.urls'
 
 TEMPLATES = [
@@ -125,11 +130,18 @@ USE_TZ = True
 JAZZMIN_SETTINGS = {
     'site_header': "Zero Exchange",
     'site_brand': "We Are Best",
-    # 'site_logo': "main/imgs/theme/loading.gif",
+    'site_logo': "logo.JPG",
     'copyright': "ZeroEx.com"
 }
 
 STATIC_URL = 'static/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'
+    #     'DEFAULT_AUTHENTICATION_CLASSES': (
+    #         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    #     ),
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -151,8 +163,6 @@ TWILIO_ACCOUNT_SID = 'your_twilio_account_sid'
 TWILIO_AUTH_TOKEN = 'your_twilio_auth_token'
 TWILIO_PHONE_NUMBER = '+1234567890'  # شماره تلفن اختصاصی Twilio شما
 
-
-#--------------------------------------------------------------------------------------
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
@@ -169,3 +179,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 #     'ROTATE_REFRESH_TOKENS': False,
 #     'BLACKLIST_AFTER_ROTATION': True,
 # }
+SWAGGER_SETTINGS = {
+    'TITLE': 'Your Project API',
+    'DESCRIPTION': 'Your Project Description',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}

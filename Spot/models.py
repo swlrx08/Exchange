@@ -1,17 +1,8 @@
 from django.db import models
-from  Accounts.models import User
+from Accounts.models import User
 from django.forms import ValidationError
-from . currency import CurrencyApi
+from .currency import CurrencyApi
 from shortuuid.django_fields import ShortUUIDField
-
-
-class Currency(models.Model):
-    name = models.CharField(max_length=50)
-    symbol = models.CharField(max_length=10)
-    price = models.DecimalField(max_digits=20, decimal_places=8)
-
-    def __str__(self):
-        return self.name
 
 
 class Wallet(models.Model):
@@ -24,7 +15,7 @@ class Wallet(models.Model):
         return CurrencyApi.get_currency(self.currency_symbol)
 
     def __str__(self):
-        return f"{self.user.username} - {self.currency_symbol}: {self.amount}"
+        return f"{self.user.name} - {self.currency_symbol}: {self.amount}"
 
     def deposit(self, amount):
         if amount <= 0:
@@ -93,7 +84,7 @@ class WalletTransactionHistory(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.origin_wallet.user.username} {self.transaction_type} {self.amount} on {self.created_at}"
+        return f"{self.origin_wallet.user.name} {self.transaction_type} {self.amount} on {self.created_at}"
 
 
 class TradingPair(models.Model):
@@ -130,15 +121,15 @@ class Order(models.Model):
     oid = ShortUUIDField(unique=True, length=10, max_length=20, prefix="ord", alphabet="abcdefgh12345")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     pair = models.ForeignKey(TradingPair, on_delete=models.CASCADE)
-    order_type = models.CharField(max_length=4, choices=ORDER_TYPE_CHOICES)
-    order_kind = models.CharField(max_length=7, choices=ORDER_KIND_CHOICES, default='market')
+    order_type = models.CharField(max_length=10, choices=ORDER_TYPE_CHOICES)
+    order_kind = models.CharField(max_length=10, choices=ORDER_KIND_CHOICES, default='market')
     price = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=True)  # قیمت سفارش
-    quantity = models.PositiveIntegerField()
+    quantity = models.PositiveIntegerField(null=True, blank=True)
     amount = models.DecimalField(max_digits=20, decimal_places=8)  # مقدار سفارش
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} {self.order_type} {self.amount} {self.pair}"
+        return f"{self.user.name} {self.order_type} {self.amount} {self.pair}"
 
 
 class SpotTransactionHistory(models.Model):
@@ -160,4 +151,4 @@ class SpotTransactionHistory(models.Model):
     fee = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=True)  # کارمزد
 
     def __str__(self):
-        return f"{self.user.username} {self.transaction_type} {self.amount} {self.pair} @ {self.price}"
+        return f"{self.user.name} {self.transaction_type} {self.amount} {self.pair} @ {self.price}"

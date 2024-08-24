@@ -1,9 +1,8 @@
-# serializers.py
-
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
+
 
 # Serializer برای ارسال کد تایید ایمیل
 class SendEmailVerificationCodeSerializer(serializers.Serializer):
@@ -14,6 +13,7 @@ class SendEmailVerificationCodeSerializer(serializers.Serializer):
             raise serializers.ValidationError("This email is already registered.")
         return value
 
+
 # Serializer برای ارسال کد تایید شماره موبایل
 class SendPhoneVerificationCodeSerializer(serializers.Serializer):
     phone_number = serializers.CharField(max_length=15)
@@ -23,15 +23,18 @@ class SendPhoneVerificationCodeSerializer(serializers.Serializer):
             raise serializers.ValidationError("This phone number is already registered.")
         return value
 
+
 # Serializer برای تایید کد ایمیل
 class VerifyEmailCodeSerializer(serializers.Serializer):
     email = serializers.EmailField()
     verification_code = serializers.CharField(max_length=6)
 
+
 # Serializer برای تایید کد شماره موبایل
 class VerifyPhoneCodeSerializer(serializers.Serializer):
     phone_number = serializers.CharField(max_length=15)
     verification_code = serializers.CharField(max_length=6)
+
 
 # Serializer برای تکمیل ثبت نام
 # class CompleteRegistrationSerializer(serializers.ModelSerializer):
@@ -39,7 +42,7 @@ class VerifyPhoneCodeSerializer(serializers.Serializer):
 
 #     class Meta:
 #         model = User
-#         fields = '__all__'
+#         fields = 'all'
 
 #     def create(self, validated_data):
 #         password = validated_data.pop('password')
@@ -49,6 +52,7 @@ class VerifyPhoneCodeSerializer(serializers.Serializer):
 #         return user
 from rest_framework import serializers
 from .models import User
+
 
 class CompleteRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
@@ -88,6 +92,7 @@ class LoginWithEmailSerializer(serializers.Serializer):
             'email': user.email,
             'name': user.name,
         }
+
 
 # Serializer لاگین با شماره موبایل
 class LoginWithPhoneSerializer(serializers.Serializer):

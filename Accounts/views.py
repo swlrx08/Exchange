@@ -1,5 +1,3 @@
-# views.py
-
 from rest_framework import generics, status
 from rest_framework.response import Response
 from django.core.mail import send_mail
@@ -17,14 +15,15 @@ from .serializers import (
     LoginWithPhoneSerializer
 )
 
+
 # ویوی ارسال کد تایید ایمیل
 class SendEmailVerificationCodeView(generics.GenericAPIView):
     serializer_class = SendEmailVerificationCodeSerializer
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         email = serializer.validated_data.get('email')
         user, created = User.objects.get_or_create(email=email)
         # verification_code = user.generate_verification_code()
@@ -41,14 +40,15 @@ class SendEmailVerificationCodeView(generics.GenericAPIView):
 
         return Response({"detail": "Verification code sent to email."}, status=status.HTTP_200_OK)
 
+
 # ویوی ارسال کد تایید شماره موبایل
 class SendPhoneVerificationCodeView(generics.GenericAPIView):
     serializer_class = SendPhoneVerificationCodeSerializer
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         phone_number = serializer.validated_data.get('phone_number')
         user, created = User.objects.get_or_create(phone_number=phone_number)
         verification_code = user.generate_verification_code()
@@ -64,14 +64,15 @@ class SendPhoneVerificationCodeView(generics.GenericAPIView):
 
         return Response({"detail": "Verification code sent to phone."}, status=status.HTTP_200_OK)
 
+
 # ویوی تایید کد ایمیل
 class VerifyEmailCodeView(generics.GenericAPIView):
     serializer_class = VerifyEmailCodeSerializer
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         email = serializer.validated_data.get('email')
         verification_code = serializer.validated_data.get('verification_code')
 
@@ -85,14 +86,15 @@ class VerifyEmailCodeView(generics.GenericAPIView):
         except User.DoesNotExist:
             return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
+
 # ویوی تایید کد شماره موبایل
 class VerifyPhoneCodeView(generics.GenericAPIView):
     serializer_class = VerifyPhoneCodeSerializer
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         phone_number = serializer.validated_data.get('phone_number')
         verification_code = serializer.validated_data.get('verification_code')
 
@@ -106,11 +108,12 @@ class VerifyPhoneCodeView(generics.GenericAPIView):
         except User.DoesNotExist:
             return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
+
 # ویوی تکمیل ثبت نام (برای هر دو حالت ایمیل و شماره موبایل)
 # class CompleteRegistrationView(generics.GenericAPIView):
 #     serializer_class = CompleteRegistrationSerializer
 
-#     def post(self, request, *args, **kwargs):
+#     def post(self, request, *args, kwargs):
 #         email = request.data.get('email')
 #         phone_number = request.data.get('phone_number')
 
@@ -121,7 +124,7 @@ class VerifyPhoneCodeView(generics.GenericAPIView):
 #                     return Response({"detail": "Email not verified."}, status=status.HTTP_400_BAD_REQUEST)
 #             except User.DoesNotExist:
 #                 return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-        
+
 #         if phone_number:
 #             try:
 #                 user = User.objects.get(phone_number=phone_number)
@@ -146,7 +149,7 @@ class VerifyPhoneCodeView(generics.GenericAPIView):
 class CompleteRegistrationView(generics.GenericAPIView):
     serializer_class = CompleteRegistrationSerializer
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, kwargs):
         email = request.data.get('email')
         phone_number = request.data.get('phone_number')
         password = request.data.get('password')  # Get the password from the request
@@ -159,12 +162,13 @@ class CompleteRegistrationView(generics.GenericAPIView):
                     return Response({"detail": "Email not verified."}, status=status.HTTP_400_BAD_REQUEST)
             except User.DoesNotExist:
                 return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-        
+
         if phone_number:
             try:
                 user = User.objects.get(phone_number=phone_number)
                 if not user.phone_verified:
-                    return Response({"detail": "Phone number not verified."}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"detail": "Phone number not verified."},
+                                    status=status.HTTP_400_BAD_REQUEST)
             except User.DoesNotExist:
                 return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -172,7 +176,7 @@ class CompleteRegistrationView(generics.GenericAPIView):
         serializer = self.serializer_class(instance=user, data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # Set the password using Django's `set_password` method
+        # Set the password using Django's set_password method
         user.set_password(password)
         user.save()
 
@@ -189,16 +193,17 @@ class CompleteRegistrationView(generics.GenericAPIView):
 class LoginWithEmailView(generics.GenericAPIView):
     serializer_class = LoginWithEmailSerializer
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
+
 
 # ویوی لاگین با شماره موبایل
 class LoginWithPhoneView(generics.GenericAPIView):
     serializer_class = LoginWithPhoneSerializer
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)

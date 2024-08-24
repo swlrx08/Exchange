@@ -119,7 +119,7 @@ fabric.properties
 *.xml
 *.iml
 .idea/
-/HCT/.idea
+/Exchange/.idea
 *.sqlite3
 /media/
 *__init__.py
